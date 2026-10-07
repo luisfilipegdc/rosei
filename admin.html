@@ -44,6 +44,42 @@
   .equipe li { margin: 6px 0; }
   .equipe li button { padding: .2em .7em; font-size: .8rem; margin-left: 8px; }
   .equipe form { display: flex; gap: 8px; flex-wrap: wrap; } .equipe form input { flex: 1; min-width: 200px; }
+
+  /* ---------- Métricas ---------- */
+  .filtro-periodo { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .filtro-periodo button { padding: .45em .9em; font-size: .85rem; background: var(--superficie); color: var(--texto); border: 1px solid var(--borda); }
+  .filtro-periodo button.ativa { background: var(--azul); color: #fff; border-color: var(--azul); }
+  .atualizado { margin-left: auto; font-size: .78rem; color: var(--texto-suave); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); padding: 14px; }
+  .kpi .rot { font-size: .78rem; color: var(--texto-suave); font-weight: 600; }
+  .kpi .val { font: 700 2rem/1.1 "EB Garamond", Georgia, serif; color: var(--azul); margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+  .kpi .sub { font-size: .76rem; color: var(--texto-suave); }
+  .kpi.alerta { border-color: var(--laranja); }
+  .kpi.alerta .sub { color: var(--laranja-escuro); font-weight: 700; }
+  .medidor { height: 6px; background: var(--azul-claro); border-radius: 99px; margin-top: 8px; overflow: hidden; }
+  .medidor i { display: block; height: 100%; background: #2F6FB0; border-radius: 99px; }
+  .graficos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grafico { margin: 0; background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); padding: 14px; min-width: 0; }
+  .grafico.largo { grid-column: 1 / -1; }
+  .grafico figcaption { font-weight: 700; font-size: .92rem; margin-bottom: 12px; }
+  .grafico figcaption small { font-weight: 400; color: var(--texto-suave); }
+  @media (max-width: 700px) { .graficos { grid-template-columns: 1fr; } }
+  .barras-v { display: flex; align-items: flex-end; gap: 2px; height: 140px; border-bottom: 1px solid var(--borda); position: relative; }
+  .barras-v .col { flex: 1; height: 100%; display: flex; align-items: flex-end; cursor: default; min-width: 0; }
+  .barras-v .col i { display: block; width: 100%; background: #2F6FB0; border-radius: 4px 4px 0 0; min-height: 0; }
+  .barras-v .col:hover i, .barras-v .col:focus i { background: var(--laranja); }
+  .barras-v .col:focus { outline: none; }
+  .eixo { display: flex; justify-content: space-between; font-size: .72rem; color: var(--texto-suave); margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .barras-h .linha { display: grid; grid-template-columns: 110px 1fr 48px; gap: 8px; align-items: center; margin: 6px 0; font-size: .85rem; }
+  .barras-h .rotulo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .barras-h .trilho { height: 14px; background: var(--azul-claro); border-radius: 4px; overflow: hidden; }
+  .barras-h .trilho i { display: block; height: 100%; background: #2F6FB0; border-radius: 0 4px 4px 0; }
+  .barras-h .num { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .barras-h .conv { font-size: .75rem; color: var(--texto-suave); margin: -2px 0 8px 118px; }
+  .vazio-graf { color: var(--texto-suave); font-size: .88rem; padding: 18px 0; }
+  .nota-privacidade { font-size: .8rem; color: var(--texto-suave); margin-top: 14px; }
+  .dica-hover { position: fixed; z-index: 60; background: var(--azul-escuro); color: #fff; font-size: .8rem; padding: 6px 10px; border-radius: 6px; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
 </style>
 </head>
 <body>
@@ -68,9 +104,27 @@
       <button data-status="pendente" class="ativa">⏳ Aguardando<span class="n" id="n-pendente">0</span></button>
       <button data-status="aprovado">🌍 Públicas<span class="n" id="n-aprovado">0</span></button>
       <button data-status="recusado">🔒 Privadas<span class="n" id="n-recusado">0</span></button>
+      <button data-status="metricas">📊 Métricas</button>
     </div>
     <div class="erro" id="erroPainel"></div>
     <div class="lista" id="lista"></div>
+
+    <section id="metricas" hidden>
+      <div class="filtro-periodo" role="group" aria-label="Período">
+        <button data-dias="7">7 dias</button><button data-dias="30" class="ativa">30 dias</button><button data-dias="90">90 dias</button>
+        <span class="atualizado" id="atualizado"></span>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <div class="graficos">
+        <figure class="grafico largo"><figcaption>Histórias recebidas por dia</figcaption><div id="gDias" class="barras-v"></div></figure>
+        <figure class="grafico"><figcaption>Do QR code ao envio <small>aparelhos únicos no período</small></figcaption><div id="gFunil"></div></figure>
+        <figure class="grafico"><figcaption>Horário dos envios</figcaption><div id="gHora" class="barras-v"></div></figure>
+        <figure class="grafico"><figcaption>Quem está contando</figcaption><div id="gGrupo"></div></figure>
+        <figure class="grafico"><figcaption>Turmas que mais participam</figcaption><div id="gTurma"></div></figure>
+      </div>
+      <p class="nota-privacidade">As métricas são anônimas: contamos aparelhos por um código aleatório, sem guardar nome, e-mail ou IP.</p>
+    </section>
+    <div class="dica-hover" id="dicaHover" role="tooltip" hidden></div>
 
     <details class="equipe">
       <summary>👥 Equipe de moderação</summary>
@@ -82,109 +136,8 @@
 </div>
 
 <script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="vendor/supabase.js"></script>
 <script src="comum.js"></script>
-<script>
-const { sb, cfg, esc, htmlHistoria, assinarMidias } = Arvore;
-const $ = id => document.getElementById(id);
-
-const SELO = { pendente: "⏳ Aguardando aprovação · privada", aprovado: "🌍 Pública na árvore", recusado: "🔒 Privada" };
-let statusAtual = "pendente", meuEmail = "";
-
-async function iniciar() {
-  const { data } = await sb.auth.getSession();
-  const logado = !!data.session;
-  $("telaLogin").hidden = logado; $("telaPainel").hidden = !logado;
-  if (!logado) return;
-  meuEmail = data.session.user.email; $("quem").textContent = meuEmail;
-  await carregarEquipe();
-  carregar();
-}
-
-$("entrar").onclick = async () => {
-  $("erroLogin").textContent = "";
-  const { error } = await sb.auth.signInWithPassword({ email: $("email").value.trim(), password: $("senha").value });
-  if (error) $("erroLogin").textContent = "E-mail ou senha incorretos."; else iniciar();
-};
-$("senha").addEventListener("keydown", e => { if (e.key === "Enter") $("entrar").click(); });
-$("sair").onclick = async () => { await sb.auth.signOut(); iniciar(); };
-
-document.querySelectorAll(".abas button").forEach(b => b.onclick = () => {
-  document.querySelectorAll(".abas button").forEach(x => x.classList.toggle("ativa", x === b));
-  statusAtual = b.dataset.status; carregar();
-});
-
-async function contar() {
-  for (const st of ["pendente", "aprovado", "recusado"]) {
-    const { count } = await sb.from("historias").select("id", { count: "exact", head: true }).eq("status", st);
-    $("n-" + st).textContent = count ?? 0;
-    if (st === "pendente") document.title = (count ? `(${count}) ` : "") + "Admin da Árvore";
-  }
-}
-
-async function carregar() {
-  $("erroPainel").textContent = "";
-  const { data, error } = await sb.from("historias").select("*").eq("status", statusAtual)
-    .order("criado_em", { ascending: statusAtual === "pendente" });
-  if (error) { $("erroPainel").textContent = error.message; return; }
-  await assinarMidias(data);
-  contar();
-  $("lista").innerHTML = data.length ? "" : '<p class="vazio">Nada por aqui.</p>';
-  data.forEach(h => {
-    const div = document.createElement("div");
-    div.className = "item " + h.status;
-    const quando = new Date(h.criado_em).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-    div.innerHTML = `<div class="selo">${SELO[h.status]}</div>` + htmlHistoria(h) + `<div class="data">${esc(quando)}</div><div class="acoes">
-      ${h.status !== "aprovado" ? '<button class="publicar">✅ Publicar</button>' : ""}
-      ${h.status !== "recusado" ? '<button class="privar">🔒 Tornar privada</button>' : ""}
-      <button class="apagar">🗑 Apagar</button></div>`;
-    div.querySelector(".publicar")?.addEventListener("click", () => mudar(h, "aprovado"));
-    div.querySelector(".privar")?.addEventListener("click", () => mudar(h, "recusado"));
-    div.querySelector(".apagar").addEventListener("click", () => apagar(h));
-    $("lista").appendChild(div);
-  });
-}
-
-async function mudar(h, status) {
-  const { error } = await sb.from("historias").update({ status }).eq("id", h.id);
-  if (error) $("erroPainel").textContent = error.message; else carregar();
-}
-async function apagar(h) {
-  if (!confirm("Apagar definitivamente esta história (e a foto/vídeo)?")) return;
-  if (h.midia_caminho) await sb.storage.from(cfg.BUCKET).remove([h.midia_caminho]);
-  const { error } = await sb.from("historias").delete().eq("id", h.id);
-  if (error) $("erroPainel").textContent = error.message; else carregar();
-}
-
-/* ---- Equipe ---- */
-async function carregarEquipe() {
-  const { data } = await sb.from("moderadores").select("email").order("email");
-  if (!data?.length) {
-    $("telaPainel").innerHTML = `<h1>Admin 🌳</h1><p class="erro">O e-mail ${esc(meuEmail)} não tem permissão de moderação.</p>
-      <p class="vazio">Peça para um moderador adicionar você na Equipe.</p><button class="secundario" onclick="sb.auth.signOut().then(()=>location.reload())">Sair</button>`;
-    throw 0;
-  }
-  $("listaEquipe").innerHTML = "";
-  data.forEach(({ email }) => {
-    const li = document.createElement("li");
-    li.textContent = email;
-    if (email !== meuEmail) {
-      const b = document.createElement("button"); b.className = "secundario"; b.textContent = "Remover";
-      b.onclick = async () => { if (confirm(`Remover ${email} da equipe?`)) { await sb.from("moderadores").delete().eq("email", email); carregarEquipe(); } };
-      li.appendChild(b);
-    } else li.append(" (você)");
-    $("listaEquipe").appendChild(li);
-  });
-}
-$("formEquipe").addEventListener("submit", async e => {
-  e.preventDefault();
-  const email = $("novoEmail").value.trim().toLowerCase();
-  const { error } = await sb.from("moderadores").insert({ email });
-  if (error) alert("Não foi possível adicionar: " + error.message); else { $("novoEmail").value = ""; carregarEquipe(); }
-});
-
-setInterval(() => { if (!$("telaPainel").hidden && document.visibilityState === "visible") carregar(); }, 30000);
-iniciar();
-</script>
+<script src="js/admin.js"></script>
 </body>
 </html>

@@ -40,5 +40,17 @@
     return `${midia}${texto}<div class="autor">${esc(assinatura(h))}</div>`;
   }
 
-  window.Arvore = { cfg, sb, urlMidia, assinarMidias, esc, assinatura, htmlHistoria };
+  // ---- métricas anônimas: tipo do evento + código aleatório do aparelho (sem nome, sem IP) ----
+  function aparelho() {
+    try {
+      let id = localStorage.getItem("arvore-aparelho");
+      if (!/^[0-9a-f-]{36}$/.test(id || "")) { id = crypto.randomUUID(); localStorage.setItem("arvore-aparelho", id); }
+      return id;
+    } catch { return null; }
+  }
+  function registrar(tipo) {
+    sb.rpc("registrar_evento", { p_tipo: tipo, p_aparelho: aparelho() }).then(() => {}, () => {});
+  }
+
+  window.Arvore = { cfg, sb, urlMidia, assinarMidias, registrar, esc, assinatura, htmlHistoria };
 })();

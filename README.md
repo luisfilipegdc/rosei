@@ -8,7 +8,7 @@ Projeto de intervenção digital: em vez de post-its de papel, o aluno **escanei
 |---|---|---|
 | `index.html` | TV do corredor / celular | A árvore. Cada folha é uma história; toque para ler. No celular vira lista de histórias com botão fixo "Contar minha história" e destaca **sua folha**. Na TV, abra `/?tv` para o modo apresentação automático. Atualiza sozinha a cada 30 s. |
 | `enviar.html` | Alunos, professores, famílias | Formulário aberto pelo QR code, em 2 etapas: (1) história com sugestões para começar + foto/vídeo; (2) anônimo ou primeiro nome, prévia da folha e autorização. Rascunho salvo no celular; o aluno acompanha se a folha já foi publicada. |
-| `admin.html` | Equipe da Pastoral | Painel restrito: **⏳ Aguardando / 🌍 Públicas / 🔒 Privadas**. Publicar, tornar privada, apagar e gerenciar a equipe de moderação. |
+| `admin.html` | Equipe da Pastoral | Painel restrito: **⏳ Aguardando / 🌍 Públicas / 🔒 Privadas / 📊 Métricas**. Publicar, tornar privada, apagar, gerenciar a equipe e acompanhar números (envios por dia, conversão do QR, horários, turmas, espaço usado). |
 | `cartaz.html` | Impressão | Cartaz A4 com o QR code para colar na lousa / murais. |
 
 **Custo: R$ 0** — Vercel (hospedagem) + Supabase (banco e fotos/vídeos), ambos no plano gratuito
@@ -72,6 +72,25 @@ Segue o Manual de Identidade Visual do Instituto Marista (2025):
 
 As cores ficam no topo de `estilo.css` — mude ali para ajustar o site inteiro.
 
+## Proteção contra brincadeiras e invasão
+Tudo é garantido **no banco** (não dá para burlar pelo navegador):
+- Todo envio entra como *pendente*, mesmo que alguém tente mandar "aprovado".
+- **Limite de envios**: 15 a cada 10 min e 60 por hora por rede; no máximo 300 histórias
+  e 40 fotos/vídeos esperando leitura. (Generoso porque a escola toda sai pelo mesmo Wi-Fi.)
+- O texto é limpo: caracteres invisíveis, "zalgo" e linhas em branco em excesso são removidos;
+  nome e turma só aceitam letras/números.
+- Foto/vídeo só sobe para uma história que acabou de ser criada, só em formatos de celular
+  (JPG, PNG, HEIC, MP4, MOV…), até 50 MB, e fica privada até a aprovação.
+- A moderação só muda o status: ninguém altera o texto ou o autor de uma história.
+- Moderador precisa estar na lista **e** ter o e-mail confirmado.
+- O site só executa os próprios scripts (Content-Security-Policy), não pode ser embutido em
+  outro site, e textos enviados são sempre exibidos como texto (nunca como código).
+- **Faça também:** Supabase → Authentication → Sign In / Providers → desligue *Allow new users to sign up*.
+
+## Métricas (aba 📊 no admin)
+Anônimas: contamos aparelhos por um código aleatório guardado no próprio celular — sem nome,
+e-mail ou IP. O funil mostra quantos aparelhos abriram o formulário, chegaram à etapa 2 e enviaram.
+
 ## Estrutura
 ```
 index.html      árvore (exibição)
@@ -80,6 +99,8 @@ admin.html      painel de aprovação (privado → público)
 cartaz.html     cartaz para imprimir
 config.js       ← único arquivo que você precisa editar
 comum.js        funções compartilhadas
+js/             código de cada página
+vendor/         bibliotecas (Supabase e QR code) servidas pelo próprio site
 estilo.css      cores e fontes Marista
 supabase/schema.sql
 vercel.json

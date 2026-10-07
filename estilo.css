@@ -64,8 +64,11 @@ button:disabled { opacity: .5; cursor: wait; }
   max-height: 90vh; overflow: auto; padding: 30px 26px 22px; position: relative;
   box-shadow: 0 20px 50px rgba(0,0,0,.4); border-top: 8px solid var(--laranja);
 }
-.cartao .texto { font-family: "EB Garamond", Georgia, serif; font-size: 1.5rem; line-height: 1.35; white-space: pre-wrap; margin: 0 0 14px; }
+.cartao .texto { overflow-wrap: anywhere; font-family: "EB Garamond", Georgia, serif; font-size: 1.5rem; line-height: 1.35; white-space: pre-wrap; margin: 0 0 14px; }
 .cartao img, .cartao video { width: 100%; border-radius: 8px; margin-bottom: 12px; max-height: 55vh; object-fit: contain; background: var(--azul-claro); }
 .cartao .autor { font-weight: 700; color: var(--laranja-escuro); }
 .cartao .fechar { position: absolute; top: 8px; right: 10px; background: none; color: #7A8CA3; font-size: 1.6rem; padding: 4px 10px; }
 .cartao .fechar:hover { background: none; color: var(--azul); }
+
+/* textos enviados nunca quebram o layout (palavras gigantes, links longos) */
+.texto, .autor, .card-historia, .item { overflow-wrap: anywhere; word-break: break-word; }

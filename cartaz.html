@@ -25,7 +25,7 @@
 </style>
 </head>
 <body class="escuro">
-<button class="imprimir" onclick="print()">🖨 Imprimir</button>
+<button class="imprimir" id="imprimir">🖨 Imprimir</button>
 <div class="folha-a4">
   <h1>Compartilhe sua história!</h1>
   <p>Onde você percebeu a ação de Deus na sua vida escolar?</p>
@@ -34,10 +34,7 @@
   <div class="passos">Escreva, mande uma foto ou um vídeo — e sua história vira uma folha da nossa árvore 🍃</div>
   <p class="assina">“Tornar Jesus Cristo conhecido e amado!” — São Marcelino Champagnat</p>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-  const url = new URL("enviar.html", location.href).href;
-  new QRCode(document.getElementById("qrcode"), { text: url, width: 600, height: 600, correctLevel: QRCode.CorrectLevel.H });
-</script>
+<script src="vendor/qrcode.min.js"></script>
+<script src="js/cartaz.js"></script>
 </body>
 </html>
