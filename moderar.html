@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Moderação da Árvore</title>
+<link rel="stylesheet" href="estilo.css">
+<style>
+  .pagina { max-width: 900px; margin: 0 auto; padding: 20px 16px 48px; }
+  h1 { font-size: 2.4rem; margin: 0; }
+  .topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .login { max-width: 360px; margin: 12vh auto 0; display: grid; gap: 12px; }
+  .login input { font: 1rem "Nunito"; padding: 12px; border-radius: var(--raio); border: 2px solid #555; background: var(--lousa-2); color: var(--giz); }
+  .abas { display: flex; gap: 8px; margin: 18px 0; flex-wrap: wrap; }
+  .abas button { padding: .55em 1.1em; font-size: .9rem; background: var(--lousa-2); color: var(--giz); }
+  .abas button.ativa { background: var(--amarelo); color: #222; }
+  .lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .item { background: #fffdf3; color: #2a2a2a; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; }
+  .item .texto { font: 1.35rem "Caveat", cursive; white-space: pre-wrap; margin: 0 0 8px; }
+  .item img, .item video { width: 100%; max-height: 220px; object-fit: contain; background: #eee; border-radius: 4px; margin-bottom: 8px; }
+  .item .autor { font-weight: 800; color: var(--azul); font-size: .9rem; }
+  .item .data { font-size: .8rem; color: #777; margin-bottom: 10px; }
+  .acoes { display: flex; gap: 6px; margin-top: auto; flex-wrap: wrap; }
+  .acoes button { padding: .5em .9em; font-size: .85rem; }
+  .aprovar { background: #3aa655 !important; color: #fff !important; }
+  .recusar { background: #ddd !important; }
+  .apagar { background: #c0392b !important; color: #fff !important; }
+  .erro { color: var(--erro); font-weight: 800; }
+  .vazio { color: var(--giz-suave); }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <div id="telaLogin" class="login" hidden>
+    <h1>Moderação 🌳</h1>
+    <input type="email" id="email" placeholder="E-mail" autocomplete="username">
+    <input type="password" id="senha" placeholder="Senha" autocomplete="current-password">
+    <button id="entrar">Entrar</button>
+    <div class="erro" id="erroLogin"></div>
+  </div>
+
+  <div id="telaPainel" hidden>
+    <div class="topo">
+      <h1>Moderação 🌳</h1>
+      <div><a href="index.html" target="_blank">Ver árvore</a> · <button class="secundario" id="sair">Sair</button></div>
+    </div>
+    <div class="abas">
+      <button data-status="pendente" class="ativa">Pendentes <span id="nPend"></span></button>
+      <button data-status="aprovado">Aprovadas</button>
+      <button data-status="recusado">Recusadas</button>
+    </div>
+    <div class="erro" id="erroPainel"></div>
+    <div class="lista" id="lista"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="comum.js"></script>
+<script>
+const { demo, sb, cfg, esc, htmlHistoria } = Arvore;
+const $ = id => document.getElementById(id);
+if (demo) { document.body.innerHTML = '<div class="pagina"><h1>Moderação</h1><p>Configure o Supabase no <code>config.js</code> para usar a moderação.</p></div>'; throw 0; }
+
+let statusAtual = "pendente";
+
+async function iniciar() {
+  const { data } = await sb.auth.getSession();
+  $("telaLogin").hidden = !!data.session;
+  $("telaPainel").hidden = !data.session;
+  if (data.session) carregar();
+}
+
+$("entrar").onclick = async () => {
+  $("erroLogin").textContent = "";
+  const { error } = await sb.auth.signInWithPassword({ email: $("email").value.trim(), password: $("senha").value });
+  if (error) $("erroLogin").textContent = "E-mail ou senha incorretos.";
+  else iniciar();
+};
+$("senha").addEventListener("keydown", e => { if (e.key === "Enter") $("entrar").click(); });
+$("sair").onclick = async () => { await sb.auth.signOut(); iniciar(); };
+
+document.querySelectorAll(".abas button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".abas button").forEach(x => x.classList.toggle("ativa", x === b));
+  statusAtual = b.dataset.status; carregar();
+});
+
+async function carregar() {
+  $("erroPainel").textContent = "";
+  const { data, error } = await sb.from("historias").select("*").eq("status", statusAtual)
+    .order("criado_em", { ascending: statusAtual === "pendente" });
+  if (error) { $("erroPainel").textContent = error.message; return; }
+  const { count } = await sb.from("historias").select("id", { count: "exact", head: true }).eq("status", "pendente");
+  $("nPend").textContent = count ? `(${count})` : "";
+  const mods = await sb.from("moderadores").select("email");
+  if (!mods.data?.length) $("erroPainel").textContent = "Seu e-mail ainda não está na tabela de moderadores (veja o LEIAME).";
+  $("lista").innerHTML = data.length ? "" : '<p class="vazio">Nada por aqui.</p>';
+  data.forEach(h => {
+    const div = document.createElement("div");
+    div.className = "item";
+    const quando = new Date(h.criado_em).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+    div.innerHTML = htmlHistoria(h) + `<div class="data">${esc(quando)}</div><div class="acoes">
+      ${h.status !== "aprovado" ? '<button class="aprovar">Aprovar</button>' : ""}
+      ${h.status !== "recusado" ? '<button class="recusar">Recusar</button>' : ""}
+      <button class="apagar">Apagar</button></div>`;
+    div.querySelector(".aprovar")?.addEventListener("click", () => mudar(h, "aprovado"));
+    div.querySelector(".recusar")?.addEventListener("click", () => mudar(h, "recusado"));
+    div.querySelector(".apagar").addEventListener("click", () => apagar(h));
+    $("lista").appendChild(div);
+  });
+}
+
+async function mudar(h, status) {
+  const { error } = await sb.from("historias").update({ status }).eq("id", h.id);
+  if (error) $("erroPainel").textContent = error.message; else carregar();
+}
+async function apagar(h) {
+  if (!confirm("Apagar definitivamente esta história?")) return;
+  if (h.midia_caminho) await sb.storage.from(cfg.BUCKET).remove([h.midia_caminho]);
+  const { error } = await sb.from("historias").delete().eq("id", h.id);
+  if (error) $("erroPainel").textContent = error.message; else carregar();
+}
+
+iniciar();
+</script>
+</body>
+</html>
