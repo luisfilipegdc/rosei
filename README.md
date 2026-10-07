@@ -64,6 +64,14 @@ SUPABASE_ANON_KEY: "eyJ...",
 - Projeto criado com a versão anterior? Rode `supabase/002_midias_privadas.sql` no SQL Editor.
 - Vídeos: máximo de 50 MB (≈ 30–60 s gravados no celular).
 
+## Identidade visual
+Segue o Manual de Identidade Visual do Instituto Marista (2025):
+- **Azul Marista** `#133B64` (Pantone 534) — cor principal e fundo da árvore
+- **Laranja Marista** `#F39200` (Pantone 144) — botões e destaques
+- **EB Garamond** nos títulos (equivalente livre da Adobe Garamond institucional) e **Open Sans** nos textos
+
+As cores ficam no topo de `estilo.css` — mude ali para ajustar o site inteiro.
+
 ## Estrutura
 ```
 index.html      árvore (exibição)
@@ -72,7 +80,7 @@ admin.html      painel de aprovação (privado → público)
 cartaz.html     cartaz para imprimir
 config.js       ← único arquivo que você precisa editar
 comum.js        funções compartilhadas
-estilo.css      visual "lousa e giz"
+estilo.css      cores e fontes Marista
 supabase/schema.sql
 vercel.json
 ```

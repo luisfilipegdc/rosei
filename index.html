@@ -9,8 +9,8 @@
   body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
   header { text-align: center; padding: 10px 16px 0; }
   header h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.6rem); }
-  header p { margin: 0; color: var(--giz-suave); font-size: clamp(.9rem, 1.8vw, 1.15rem); }
-  header b { color: var(--giz); }
+  header p { margin: 0; color: var(--texto-suave); font-size: clamp(.9rem, 1.8vw, 1.15rem); }
+  header b { color: var(--laranja); }
   main { flex: 1; position: relative; min-height: 0; }
   svg#arvore { width: 100%; height: 100%; display: block; }
   .folha { cursor: pointer; transition: transform .25s; transform-box: fill-box; transform-origin: center; }
@@ -19,18 +19,18 @@
   .folha.nova { animation: brotar 1.2s ease-out; }
   @keyframes brotar { from { transform: scale(0); } 60% { transform: scale(1.5); } to { transform: scale(1); } }
   .qr {
-    position: absolute; right: 16px; bottom: 16px; background: #fff; color: #222;
+    position: absolute; right: 16px; bottom: 16px; background: #fff; color: var(--azul);
     padding: 10px 10px 6px; border-radius: 10px; text-align: center; width: 150px;
     box-shadow: 0 6px 20px rgba(0,0,0,.4); text-decoration: none;
   }
   .qr #qrcode img, .qr #qrcode canvas { width: 130px !important; height: 130px !important; }
-  .qr span { font: 700 1.15rem "Caveat", cursive; display: block; line-height: 1.1; }
-  .contador { position: absolute; left: 16px; bottom: 16px; font-size: 1.5rem; color: var(--giz-suave); }
-  .contador b { color: var(--amarelo); font-size: 2.2rem; }
+  .qr span { font: 700 1.15rem "EB Garamond", Georgia, serif; display: block; line-height: 1.1; }
+  .contador { position: absolute; left: 16px; bottom: 16px; font-size: 1.5rem; color: var(--texto-suave); }
+  .contador b { color: var(--laranja); font-size: 2.2rem; }
   .controles { position: absolute; left: 16px; top: 8px; display: flex; gap: 8px; }
   .controles button { padding: .5em 1em; font-size: .85rem; }
   .vazio { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; pointer-events: none; }
-  .vazio p { font: 700 2rem "Caveat", cursive; color: var(--giz-suave); text-align: center; margin-top: -20vh; }
+  .vazio p { font: 700 2rem "EB Garamond", Georgia, serif; color: var(--texto-suave); text-align: center; margin-top: -20vh; }
   @media (max-width: 640px) {
     .qr { width: 104px; right: 10px; bottom: 10px; padding: 6px 6px 4px; }
     .qr #qrcode img, .qr #qrcode canvas { width: 90px !important; height: 90px !important; }
@@ -40,7 +40,7 @@
   }
 </style>
 </head>
-<body>
+<body class="escuro">
 <header>
   <h1>Compartilhe sua história!</h1>
   <p>Onde você percebeu a ação de <b>Deus</b> na sua vida escolar? Cada folha é uma história da comunidade <b>Marista</b>.</p>
@@ -109,7 +109,7 @@ function el(tag, attrs, pai) {
 }
 (function desenhar() {
   const g = document.getElementById("tronco");
-  const GIZ = "#f1efe6", LOUSA = "#2b2f2e";
+  const GIZ = "#ffffff", LOUSA = getComputedStyle(document.body).getPropertyValue("--fundo").trim() || "#133B64";
   // passada 1: branco
   el("path", { d: TRONCO, fill: GIZ, stroke: GIZ, "stroke-width": 7 }, g);
   GALHOS.forEach(([d, w]) => el("path", { d, fill: "none", stroke: GIZ, "stroke-width": w + 7, "stroke-linecap": "round" }, g));
@@ -134,7 +134,7 @@ function posicoes(qtd) {
   for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [pts[i], pts[j]] = [pts[j], pts[i]]; }
   return pts;
 }
-const CORES = ["#ffd54a", "#ff9ec4", "#9be38b", "#ffb36b", "#c6a8ff", "#8fd3ff"];
+const CORES = ["#F39200", "#FFB547", "#FFFFFF", "#7FB2E5", "#FFD08A", "#A9C8E8"]; // laranja e azuis Marista
 
 /* ---------------- Dados ---------------- */
 let historias = [];
