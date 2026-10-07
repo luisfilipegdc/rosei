@@ -15,10 +15,23 @@
     { nome: "", grupo: "Aluno", turma: "1º EM", mensagem: "Quando a coordenadora parou tudo pra me escutar num dia difícil." },
   ].map((h, i) => ({ ...h, id: "demo-" + i, criado_em: new Date(Date.now() - i * 36e5).toISOString(), status: "aprovado" }));
 
+  // As mídias ficam num bucket PRIVADO. O Supabase só gera link (temporário)
+  // para arquivos de histórias aprovadas — ou para moderadores logados.
+  const cacheLinks = new Map(); // caminho -> { url, expira }
+  async function assinarMidias(lista) {
+    if (demo) return;
+    const agora = Date.now();
+    const faltam = [...new Set(lista.map(h => h.midia_caminho).filter(c => c && !(cacheLinks.get(c)?.expira > agora)))];
+    if (faltam.length) {
+      const { data, error } = await sb.storage.from(cfg.BUCKET).createSignedUrls(faltam, 900);
+      if (error) console.error(error);
+      (data || []).forEach(d => { if (d.signedUrl) cacheLinks.set(d.path, { url: d.signedUrl, expira: agora + 12 * 60e3 }); });
+    }
+  }
   function urlMidia(caminho) {
     if (!caminho) return null;
     if (demo) return caminho;
-    return sb.storage.from(cfg.BUCKET).getPublicUrl(caminho).data.publicUrl;
+    return cacheLinks.get(caminho)?.url || null;
   }
 
   function esc(s) {
@@ -41,5 +54,5 @@
     return `${midia}${texto}<div class="autor">${esc(assinatura(h))}</div>`;
   }
 
-  window.Arvore = { cfg, demo, sb, EXEMPLOS, urlMidia, esc, assinatura, htmlHistoria };
+  window.Arvore = { cfg, demo, sb, EXEMPLOS, urlMidia, assinarMidias, esc, assinatura, htmlHistoria };
 })();

@@ -8,7 +8,7 @@ Projeto de intervenção digital: em vez de post-its de papel, o aluno **escanei
 |---|---|---|
 | `index.html` | TV do corredor / todos | A árvore. Cada folha é uma história; toque para ler. Botão **Modo TV** mostra uma por vez automaticamente. Atualiza sozinha a cada 30 s. |
 | `enviar.html` | Alunos, professores, famílias | Formulário aberto pelo QR code: história + foto/vídeo + nome (opcional). |
-| `moderar.html` | Equipe da Pastoral | Login para **aprovar / recusar / apagar** antes de aparecer na árvore. |
+| `admin.html` | Equipe da Pastoral | Painel restrito: **⏳ Aguardando / 🌍 Públicas / 🔒 Privadas**. Publicar, tornar privada, apagar e gerenciar a equipe de moderação. |
 | `cartaz.html` | Impressão | Cartaz A4 com o QR code para colar na lousa / murais. |
 
 > Sem configurar nada, o site abre em **modo demonstração** com histórias de exemplo.
@@ -49,22 +49,28 @@ SUPABASE_ANON_KEY: "eyJ...",
 ### 4. Usar na escola
 - Abra `https://SEU-SITE.vercel.app/cartaz` → **Imprimir** → cole na lousa ao lado da árvore de giz.
 - Deixe `https://SEU-SITE.vercel.app` aberto numa TV/projetor (aperte **F11** e **Modo TV**).
-- A Pastoral acessa `https://SEU-SITE.vercel.app/moderar` pelo celular para aprovar as histórias.
+- A Pastoral acessa `https://SEU-SITE.vercel.app/admin` pelo celular para aprovar as histórias.
 
 ---
 
 ## Segurança e cuidados (alunos menores de idade)
-- **Nada aparece sem aprovação**: tudo entra como *pendente*; só moderadores aprovam.
+- **Privado por padrão**: tudo entra como *⏳ Aguardando* e fica invisível para o público — texto **e** foto/vídeo.
+  As regras estão no próprio banco (RLS do Supabase), não só na tela: mesmo com o link do arquivo, ninguém
+  consegue abrir a mídia de uma história que não foi publicada.
+- Só quem está na **Equipe de moderação** (tabela `moderadores`, gerenciável pelo Admin) pode publicar.
+- Uma história publicada pode voltar a ser **🔒 Privada** a qualquer momento (sai da árvore em até 30 s;
+  links de mídia já abertos expiram em no máximo 15 min).
 - Nome é **opcional** (pode ser anônimo) e há um **termo de autorização** obrigatório no envio.
 - Recomenda-se que a coordenação valide o uso de imagem conforme a política do colégio (LGPD).
-- Arquivos recebem nomes aleatórios; ao **apagar** uma história, a foto/vídeo também é apagada.
+- Ao **apagar** uma história, a foto/vídeo também é apagada.
+- Projeto criado com a versão anterior? Rode `supabase/002_midias_privadas.sql` no SQL Editor.
 - Vídeos: máximo de 50 MB (≈ 30–60 s gravados no celular).
 
 ## Estrutura
 ```
 index.html      árvore (exibição)
 enviar.html     formulário do QR code
-moderar.html    painel de aprovação
+admin.html      painel de aprovação (privado → público)
 cartaz.html     cartaz para imprimir
 config.js       ← único arquivo que você precisa editar
 comum.js        funções compartilhadas

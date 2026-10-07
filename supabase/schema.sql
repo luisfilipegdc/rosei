@@ -17,6 +17,10 @@ $$;
 alter table public.moderadores enable row level security;
 create policy "moderador vê lista" on public.moderadores
   for select to authenticated using (public.is_moderador());
+create policy "moderador adiciona" on public.moderadores
+  for insert to authenticated with check (public.is_moderador());
+create policy "moderador remove" on public.moderadores
+  for delete to authenticated using (public.is_moderador() and email <> auth.jwt() ->> 'email');
 
 -- 2) As histórias (folhas da árvore)
 create table if not exists public.historias (
@@ -48,9 +52,9 @@ create policy "moderador altera" on public.historias
 create policy "moderador apaga" on public.historias
   for delete to authenticated using (public.is_moderador());
 
--- 3) Armazenamento de fotos e vídeos
+-- 3) Armazenamento de fotos e vídeos — bucket PRIVADO
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('midias', 'midias', true, 52428800, array['image/*','video/*'])
+values ('midias', 'midias', false, 52428800, array['image/*','video/*'])
 on conflict (id) do nothing;
 
 create policy "qualquer um sobe mídia" on storage.objects
@@ -60,3 +64,15 @@ create policy "qualquer um sobe mídia" on storage.objects
 create policy "moderador apaga mídia" on storage.objects
   for delete to authenticated
   using (bucket_id = 'midias' and public.is_moderador());
+
+-- Arquivos só podem ser vistos se a história foi APROVADA (ou por moderadores)
+create policy "ver mídia aprovada ou moderador" on storage.objects
+  for select to anon, authenticated
+  using (
+    bucket_id = 'midias'
+    and (
+      public.is_moderador()
+      or exists (select 1 from public.historias h
+                 where h.midia_caminho = storage.objects.name and h.status = 'aprovado')
+    )
+  );

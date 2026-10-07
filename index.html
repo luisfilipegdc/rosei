@@ -81,7 +81,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="comum.js"></script>
 <script>
-const { demo, sb, cfg, EXEMPLOS, htmlHistoria } = Arvore;
+const { demo, sb, cfg, EXEMPLOS, htmlHistoria, assinarMidias } = Arvore;
 if (demo) document.getElementById("avisoDemo").hidden = false;
 
 /* ---------------- Desenho da árvore em "giz" ---------------- */
@@ -149,6 +149,7 @@ async function carregar() {
     const { data, error } = await sb.from("historias").select("*").eq("status", "aprovado").order("criado_em", { ascending: true });
     if (error) { console.error(error); return; }
     lista = data;
+    await assinarMidias(lista);
   }
   const primeira = historias.length === 0 && jaVistas.size === 0;
   historias = lista;

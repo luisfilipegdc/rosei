@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin da Árvore</title>
+<link rel="stylesheet" href="estilo.css">
+<style>
+  .pagina { max-width: 980px; margin: 0 auto; padding: 20px 16px 48px; }
+  h1 { font-size: 2.4rem; margin: 0; }
+  .topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .topo .direita { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: .9rem; color: var(--giz-suave); }
+  .login { max-width: 360px; margin: 12vh auto 0; display: grid; gap: 12px; }
+  .login p { margin: 0; color: var(--giz-suave); }
+  input[type=email], input[type=password] { font: 1rem "Nunito"; padding: 12px; border-radius: var(--raio); border: 2px solid #555; background: var(--lousa-2); color: var(--giz); width: 100%; }
+  .regra { background: var(--lousa-2); border-left: 4px solid var(--amarelo); padding: 10px 14px; border-radius: 6px; margin: 16px 0 0; font-size: .92rem; color: var(--giz-suave); }
+  .regra b { color: var(--giz); }
+  .abas { display: flex; gap: 8px; margin: 18px 0; flex-wrap: wrap; }
+  .abas button { padding: .6em 1.1em; font-size: .92rem; background: var(--lousa-2); color: var(--giz); }
+  .abas button.ativa { background: var(--amarelo); color: #222; }
+  .abas .n { display: inline-block; min-width: 1.6em; padding: 0 .4em; margin-left: .3em; border-radius: 99px; background: rgba(0,0,0,.25); font-size: .8rem; }
+  .lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; }
+  .item { background: #fffdf3; color: #2a2a2a; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; border-top: 6px solid #999; }
+  .item.pendente { border-top-color: var(--laranja); }
+  .item.aprovado { border-top-color: #3aa655; }
+  .item.recusado { border-top-color: #777; }
+  .selo { font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .item .texto { font: 1.35rem "Caveat", cursive; white-space: pre-wrap; margin: 0 0 8px; }
+  .item img, .item video { width: 100%; max-height: 240px; object-fit: contain; background: #eee; border-radius: 4px; margin-bottom: 8px; }
+  .item .autor { font-weight: 800; color: var(--azul); font-size: .9rem; }
+  .item .data { font-size: .8rem; color: #777; margin-bottom: 12px; }
+  .acoes { display: flex; gap: 6px; margin-top: auto; flex-wrap: wrap; }
+  .acoes button { padding: .55em .95em; font-size: .85rem; }
+  .publicar { background: #3aa655 !important; color: #fff !important; }
+  .privar { background: #555 !important; color: #fff !important; }
+  .apagar { background: transparent !important; color: #c0392b !important; border: 2px solid #c0392b !important; }
+  .erro { color: var(--erro); font-weight: 800; }
+  .vazio { color: var(--giz-suave); }
+  details.equipe { margin-top: 36px; background: var(--lousa-2); border-radius: var(--raio); padding: 14px 16px; }
+  details.equipe summary { cursor: pointer; font-weight: 800; }
+  .equipe ul { padding-left: 18px; }
+  .equipe li { margin: 6px 0; }
+  .equipe li button { padding: .2em .7em; font-size: .8rem; margin-left: 8px; }
+  .equipe form { display: flex; gap: 8px; flex-wrap: wrap; } .equipe form input { flex: 1; min-width: 200px; }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <div id="telaLogin" class="login" hidden>
+    <h1>Admin 🌳</h1>
+    <p>Área restrita à equipe que aprova as histórias.</p>
+    <input type="email" id="email" placeholder="E-mail" autocomplete="username">
+    <input type="password" id="senha" placeholder="Senha" autocomplete="current-password">
+    <button id="entrar">Entrar</button>
+    <div class="erro" id="erroLogin"></div>
+  </div>
+
+  <div id="telaPainel" hidden>
+    <div class="topo">
+      <h1>Admin 🌳</h1>
+      <div class="direita"><span id="quem"></span> · <a href="index.html" target="_blank">Ver árvore</a> <button class="secundario" id="sair">Sair</button></div>
+    </div>
+    <p class="regra">Tudo o que chega entra <b>⏳ Aguardando</b> e fica <b>privado</b> — ninguém vê o texto nem a foto/vídeo.
+      Só depois de <b>✅ Publicar</b> a história aparece na árvore. Você pode <b>🔒 Tornar privada</b> a qualquer momento.</p>
+    <div class="abas">
+      <button data-status="pendente" class="ativa">⏳ Aguardando<span class="n" id="n-pendente">0</span></button>
+      <button data-status="aprovado">🌍 Públicas<span class="n" id="n-aprovado">0</span></button>
+      <button data-status="recusado">🔒 Privadas<span class="n" id="n-recusado">0</span></button>
+    </div>
+    <div class="erro" id="erroPainel"></div>
+    <div class="lista" id="lista"></div>
+
+    <details class="equipe">
+      <summary>👥 Equipe de moderação</summary>
+      <p class="vazio">Quem estiver nesta lista pode aprovar histórias. A pessoa também precisa de um login (Supabase → Authentication → Users).</p>
+      <ul id="listaEquipe"></ul>
+      <form id="formEquipe"><input type="email" id="novoEmail" placeholder="email@exemplo.com" required><button>Adicionar</button></form>
+    </details>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="comum.js"></script>
+<script>
+const { demo, sb, cfg, esc, htmlHistoria, assinarMidias } = Arvore;
+const $ = id => document.getElementById(id);
+if (demo) { document.body.innerHTML = '<div class="pagina"><h1>Admin</h1><p>Configure o Supabase no <code>config.js</code> para usar o painel.</p></div>'; throw 0; }
+
+const SELO = { pendente: "⏳ Aguardando aprovação · privada", aprovado: "🌍 Pública na árvore", recusado: "🔒 Privada" };
+let statusAtual = "pendente", meuEmail = "";
+
+async function iniciar() {
+  const { data } = await sb.auth.getSession();
+  const logado = !!data.session;
+  $("telaLogin").hidden = logado; $("telaPainel").hidden = !logado;
+  if (!logado) return;
+  meuEmail = data.session.user.email; $("quem").textContent = meuEmail;
+  await carregarEquipe();
+  carregar();
+}
+
+$("entrar").onclick = async () => {
+  $("erroLogin").textContent = "";
+  const { error } = await sb.auth.signInWithPassword({ email: $("email").value.trim(), password: $("senha").value });
+  if (error) $("erroLogin").textContent = "E-mail ou senha incorretos."; else iniciar();
+};
+$("senha").addEventListener("keydown", e => { if (e.key === "Enter") $("entrar").click(); });
+$("sair").onclick = async () => { await sb.auth.signOut(); iniciar(); };
+
+document.querySelectorAll(".abas button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".abas button").forEach(x => x.classList.toggle("ativa", x === b));
+  statusAtual = b.dataset.status; carregar();
+});
+
+async function contar() {
+  for (const st of ["pendente", "aprovado", "recusado"]) {
+    const { count } = await sb.from("historias").select("id", { count: "exact", head: true }).eq("status", st);
+    $("n-" + st).textContent = count ?? 0;
+    if (st === "pendente") document.title = (count ? `(${count}) ` : "") + "Admin da Árvore";
+  }
+}
+
+async function carregar() {
+  $("erroPainel").textContent = "";
+  const { data, error } = await sb.from("historias").select("*").eq("status", statusAtual)
+    .order("criado_em", { ascending: statusAtual === "pendente" });
+  if (error) { $("erroPainel").textContent = error.message; return; }
+  await assinarMidias(data);
+  contar();
+  $("lista").innerHTML = data.length ? "" : '<p class="vazio">Nada por aqui.</p>';
+  data.forEach(h => {
+    const div = document.createElement("div");
+    div.className = "item " + h.status;
+    const quando = new Date(h.criado_em).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+    div.innerHTML = `<div class="selo">${SELO[h.status]}</div>` + htmlHistoria(h) + `<div class="data">${esc(quando)}</div><div class="acoes">
+      ${h.status !== "aprovado" ? '<button class="publicar">✅ Publicar</button>' : ""}
+      ${h.status !== "recusado" ? '<button class="privar">🔒 Tornar privada</button>' : ""}
+      <button class="apagar">🗑 Apagar</button></div>`;
+    div.querySelector(".publicar")?.addEventListener("click", () => mudar(h, "aprovado"));
+    div.querySelector(".privar")?.addEventListener("click", () => mudar(h, "recusado"));
+    div.querySelector(".apagar").addEventListener("click", () => apagar(h));
+    $("lista").appendChild(div);
+  });
+}
+
+async function mudar(h, status) {
+  const { error } = await sb.from("historias").update({ status }).eq("id", h.id);
+  if (error) $("erroPainel").textContent = error.message; else carregar();
+}
+async function apagar(h) {
+  if (!confirm("Apagar definitivamente esta história (e a foto/vídeo)?")) return;
+  if (h.midia_caminho) await sb.storage.from(cfg.BUCKET).remove([h.midia_caminho]);
+  const { error } = await sb.from("historias").delete().eq("id", h.id);
+  if (error) $("erroPainel").textContent = error.message; else carregar();
+}
+
+/* ---- Equipe ---- */
+async function carregarEquipe() {
+  const { data } = await sb.from("moderadores").select("email").order("email");
+  if (!data?.length) {
+    $("telaPainel").innerHTML = `<h1>Admin 🌳</h1><p class="erro">O e-mail ${esc(meuEmail)} não tem permissão de moderação.</p>
+      <p class="vazio">Peça para um moderador adicionar você na Equipe.</p><button class="secundario" onclick="sb.auth.signOut().then(()=>location.reload())">Sair</button>`;
+    throw 0;
+  }
+  $("listaEquipe").innerHTML = "";
+  data.forEach(({ email }) => {
+    const li = document.createElement("li");
+    li.textContent = email;
+    if (email !== meuEmail) {
+      const b = document.createElement("button"); b.className = "secundario"; b.textContent = "Remover";
+      b.onclick = async () => { if (confirm(`Remover ${email} da equipe?`)) { await sb.from("moderadores").delete().eq("email", email); carregarEquipe(); } };
+      li.appendChild(b);
+    } else li.append(" (você)");
+    $("listaEquipe").appendChild(li);
+  });
+}
+$("formEquipe").addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = $("novoEmail").value.trim().toLowerCase();
+  const { error } = await sb.from("moderadores").insert({ email });
+  if (error) alert("Não foi possível adicionar: " + error.message); else { $("novoEmail").value = ""; carregarEquipe(); }
+});
+
+setInterval(() => { if (!$("telaPainel").hidden && document.visibilityState === "visible") carregar(); }, 30000);
+iniciar();
+</script>
+</body>
+</html>

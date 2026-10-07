@@ -1,5 +1,8 @@
 {
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/moderar", "destination": "/admin", "permanent": false }
+  ],
   "headers": [
     { "source": "/config.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
   ]
