@@ -41,7 +41,6 @@
 </style>
 </head>
 <body>
-<div id="avisoDemo" class="aviso-demo" hidden>Modo demonstração — preencha o config.js com os dados do Supabase para usar de verdade.</div>
 <header>
   <h1>Compartilhe sua história!</h1>
   <p>Onde você percebeu a ação de <b>Deus</b> na sua vida escolar? Cada folha é uma história da comunidade <b>Marista</b>.</p>
@@ -81,8 +80,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="comum.js"></script>
 <script>
-const { demo, sb, cfg, EXEMPLOS, htmlHistoria, assinarMidias } = Arvore;
-if (demo) document.getElementById("avisoDemo").hidden = false;
+const { sb, cfg, htmlHistoria, assinarMidias } = Arvore;
 
 /* ---------------- Desenho da árvore em "giz" ---------------- */
 // Cada galho é uma linha central com espessura. Desenhamos tudo em branco
@@ -143,14 +141,9 @@ let historias = [];
 const jaVistas = new Set();
 
 async function carregar() {
-  let lista;
-  if (demo) lista = EXEMPLOS;
-  else {
-    const { data, error } = await sb.from("historias").select("*").eq("status", "aprovado").order("criado_em", { ascending: true });
-    if (error) { console.error(error); return; }
-    lista = data;
-    await assinarMidias(lista);
-  }
+  const { data: lista, error } = await sb.from("historias").select("*").eq("status", "aprovado").order("criado_em", { ascending: true });
+  if (error) { console.error(error); return; }
+  await assinarMidias(lista);
   const primeira = historias.length === 0 && jaVistas.size === 0;
   historias = lista;
   desenharFolhas(primeira);
@@ -217,7 +210,7 @@ document.getElementById("linkEnviar").href = urlEnviar;
 new QRCode(document.getElementById("qrcode"), { text: urlEnviar, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M });
 
 carregar();
-if (!demo) setInterval(carregar, cfg.ATUALIZAR_A_CADA_SEG * 1000);
+setInterval(carregar, cfg.ATUALIZAR_A_CADA_SEG * 1000);
 </script>
 </body>
 </html>

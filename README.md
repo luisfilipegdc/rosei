@@ -11,8 +11,6 @@ Projeto de intervenção digital: em vez de post-its de papel, o aluno **escanei
 | `admin.html` | Equipe da Pastoral | Painel restrito: **⏳ Aguardando / 🌍 Públicas / 🔒 Privadas**. Publicar, tornar privada, apagar e gerenciar a equipe de moderação. |
 | `cartaz.html` | Impressão | Cartaz A4 com o QR code para colar na lousa / murais. |
 
-> Sem configurar nada, o site abre em **modo demonstração** com histórias de exemplo.
-
 **Custo: R$ 0** — Vercel (hospedagem) + Supabase (banco e fotos/vídeos), ambos no plano gratuito
 (Supabase grátis: 500 MB de banco e 1 GB de arquivos; fotos são reduzidas automaticamente).
 

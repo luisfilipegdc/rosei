@@ -33,10 +33,6 @@ button, .botao {
 }
 button.secundario { background: transparent; color: var(--giz); border: 2px solid var(--giz-suave); }
 button:disabled { opacity: .5; cursor: wait; }
-.aviso-demo {
-  background: var(--laranja); color: #2a2a2a; text-align: center;
-  padding: .5em 1em; font-weight: 800; font-size: .9rem;
-}
 
 /* ---------- Modal de história ---------- */
 .modal-fundo {

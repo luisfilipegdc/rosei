@@ -1,7 +1,6 @@
 // ============================================================
 //  CONFIGURAÇÃO — preencha com os dados do seu projeto Supabase
 //  (Painel do Supabase → Project Settings → API)
-//  Enquanto estiver vazio, o site roda em MODO DEMONSTRAÇÃO.
 // ============================================================
 window.ARVORE_CONFIG = {
   SUPABASE_URL: "https://frsidsdrexolvcfxzroe.supabase.co",

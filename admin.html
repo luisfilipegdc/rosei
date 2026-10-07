@@ -84,9 +84,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="comum.js"></script>
 <script>
-const { demo, sb, cfg, esc, htmlHistoria, assinarMidias } = Arvore;
+const { sb, cfg, esc, htmlHistoria, assinarMidias } = Arvore;
 const $ = id => document.getElementById(id);
-if (demo) { document.body.innerHTML = '<div class="pagina"><h1>Admin</h1><p>Configure o Supabase no <code>config.js</code> para usar o painel.</p></div>'; throw 0; }
 
 const SELO = { pendente: "⏳ Aguardando aprovação · privada", aprovado: "🌍 Pública na árvore", recusado: "🔒 Privada" };
 let statusAtual = "pendente", meuEmail = "";

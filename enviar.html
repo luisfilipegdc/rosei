@@ -41,7 +41,6 @@
 </style>
 </head>
 <body>
-<div id="avisoDemo" class="aviso-demo" hidden>Modo demonstração — nada será salvo.</div>
 
 <div class="pagina" id="formulario">
   <h1>Compartilhe sua história!</h1>
@@ -101,8 +100,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="comum.js"></script>
 <script>
-const { demo, sb, cfg } = Arvore;
-if (demo) document.getElementById("avisoDemo").hidden = false;
+const { sb, cfg } = Arvore;
 document.getElementById("maxMb").textContent = cfg.TAMANHO_MAX_MB;
 
 const $ = id => document.getElementById(id);
@@ -151,31 +149,28 @@ $("form").addEventListener("submit", async e => {
 
   const botao = $("enviar"); botao.disabled = true; botao.textContent = "Enviando…";
   try {
-    if (demo) { progresso(100); await new Promise(r => setTimeout(r, 800)); }
-    else {
-      let caminho = null;
-      if (arquivo) {
-        progresso(15);
-        let corpo = arquivo, ext = (arquivo.name.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-        if (tipo === "imagem") { corpo = await comprimirImagem(arquivo); if (corpo !== arquivo) ext = "jpg"; }
-        if (corpo.size > cfg.TAMANHO_MAX_MB * 1048576) throw new Error(`Arquivo maior que ${cfg.TAMANHO_MAX_MB} MB.`);
-        caminho = `envios/${crypto.randomUUID()}.${ext || (tipo === "imagem" ? "jpg" : "mp4")}`;
-        progresso(35);
-        const up = await sb.storage.from(cfg.BUCKET).upload(caminho, corpo, { contentType: corpo.type || arquivo.type, upsert: false });
-        if (up.error) throw up.error;
-        progresso(85);
-      }
-      const { error } = await sb.from("historias").insert({
-        mensagem: texto || null,
-        nome: $("nome").value.trim() || null,
-        grupo: $("grupo").value,
-        turma: $("turma").value.trim() || null,
-        midia_caminho: caminho,
-        midia_tipo: caminho ? tipo : null,
-      });
-      if (error) throw error;
-      progresso(100);
+    let caminho = null;
+    if (arquivo) {
+      progresso(15);
+      let corpo = arquivo, ext = (arquivo.name.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (tipo === "imagem") { corpo = await comprimirImagem(arquivo); if (corpo !== arquivo) ext = "jpg"; }
+      if (corpo.size > cfg.TAMANHO_MAX_MB * 1048576) throw new Error(`Arquivo maior que ${cfg.TAMANHO_MAX_MB} MB.`);
+      caminho = `envios/${crypto.randomUUID()}.${ext || (tipo === "imagem" ? "jpg" : "mp4")}`;
+      progresso(35);
+      const up = await sb.storage.from(cfg.BUCKET).upload(caminho, corpo, { contentType: corpo.type || arquivo.type, upsert: false });
+      if (up.error) throw up.error;
+      progresso(85);
     }
+    const { error } = await sb.from("historias").insert({
+      mensagem: texto || null,
+      nome: $("nome").value.trim() || null,
+      grupo: $("grupo").value,
+      turma: $("turma").value.trim() || null,
+      midia_caminho: caminho,
+      midia_tipo: caminho ? tipo : null,
+    });
+    if (error) throw error;
+    progresso(100);
     $("formulario").style.display = "none";
     $("sucesso").style.display = "block";
   } catch (err) {
