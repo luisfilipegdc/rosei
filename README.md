@@ -6,8 +6,8 @@ Projeto de intervenção digital: em vez de post-its de papel, o aluno **escanei
 
 | Página | Para quem | O que faz |
 |---|---|---|
-| `index.html` | TV do corredor / todos | A árvore. Cada folha é uma história; toque para ler. Botão **Modo TV** mostra uma por vez automaticamente. Atualiza sozinha a cada 30 s. |
-| `enviar.html` | Alunos, professores, famílias | Formulário aberto pelo QR code: história + foto/vídeo + nome (opcional). |
+| `index.html` | TV do corredor / celular | A árvore. Cada folha é uma história; toque para ler. No celular vira lista de histórias com botão fixo "Contar minha história" e destaca **sua folha**. Na TV, abra `/?tv` para o modo apresentação automático. Atualiza sozinha a cada 30 s. |
+| `enviar.html` | Alunos, professores, famílias | Formulário aberto pelo QR code, em 2 etapas: (1) história com sugestões para começar + foto/vídeo; (2) anônimo ou primeiro nome, prévia da folha e autorização. Rascunho salvo no celular; o aluno acompanha se a folha já foi publicada. |
 | `admin.html` | Equipe da Pastoral | Painel restrito: **⏳ Aguardando / 🌍 Públicas / 🔒 Privadas**. Publicar, tornar privada, apagar e gerenciar a equipe de moderação. |
 | `cartaz.html` | Impressão | Cartaz A4 com o QR code para colar na lousa / murais. |
 
@@ -46,7 +46,7 @@ SUPABASE_ANON_KEY: "eyJ...",
 
 ### 4. Usar na escola
 - Abra `https://SEU-SITE.vercel.app/cartaz` → **Imprimir** → cole na lousa ao lado da árvore de giz.
-- Deixe `https://SEU-SITE.vercel.app` aberto numa TV/projetor (aperte **F11** e **Modo TV**).
+- Deixe `https://SEU-SITE.vercel.app/?tv` aberto numa TV/projetor (aperte **F11**) — as histórias passam sozinhas.
 - A Pastoral acessa `https://SEU-SITE.vercel.app/admin` pelo celular para aprovar as histórias.
 
 ---

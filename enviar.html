@@ -2,131 +2,326 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Deixe sua história</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#133B64">
+<title>Compartilhe sua história</title>
 <link rel="stylesheet" href="estilo.css">
 <style>
-  .pagina { max-width: 560px; margin: 0 auto; padding: 20px 16px 48px; }
-  h1 { font-size: 2.6rem; margin: 8px 0 0; text-align: center; }
-  .sub { text-align: center; color: var(--texto-suave); margin: 0 0 22px; }
+  .marca { background: var(--azul); color: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .marca b { font: 700 1.15rem "EB Garamond", Georgia, serif; letter-spacing: .3px; }
+  .marca span { font-size: .78rem; opacity: .8; }
+  .pagina { max-width: 560px; margin: 0 auto; padding: 18px 16px 40px; }
+
+  /* progresso das etapas (efeito do objetivo próximo) */
+  .etapas { display: flex; gap: 6px; margin: 4px 0 18px; }
+  .etapas i { flex: 1; height: 5px; border-radius: 99px; background: var(--borda); }
+  .etapas i.feita { background: var(--laranja); }
+  .rotulo-etapa { font-size: .8rem; font-weight: 700; color: var(--texto-suave); text-transform: uppercase; letter-spacing: .6px; margin: 0 0 4px; }
+
+  h1 { font-size: clamp(2rem, 8vw, 2.5rem); line-height: 1.05; margin: 0 0 8px; }
+  .sub { color: var(--texto-suave); margin: 0 0 18px; line-height: 1.5; }
   .sub b { color: var(--laranja-escuro); }
-  label { display: block; font-weight: 800; margin: 18px 0 6px; }
-  label small { font-weight: 400; color: var(--texto-suave); }
-  input[type=text], textarea, select {
-    width: 100%; font: 1rem "Open Sans", sans-serif; padding: 12px 14px; border-radius: var(--raio);
-    border: 2px solid var(--borda); background: var(--superficie); color: var(--azul);
+
+  .bloco { background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); padding: 16px; margin-bottom: 14px; }
+  .bloco > .titulo-bloco { font-weight: 700; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .bloco > .titulo-bloco small { font-weight: 400; color: var(--texto-suave); font-size: .82rem; }
+
+  .ideias { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 0 -2px 12px; scrollbar-width: none; }
+  .ideias::-webkit-scrollbar { display: none; }
+  .ideias button { flex: none; font: 600 .9rem "Open Sans"; padding: .7em 1em; min-height: 44px; background: var(--azul-claro); color: var(--azul); border: 1px solid transparent; }
+  .ideias button:hover { background: #fff; border-color: var(--laranja); }
+
+  textarea, input[type=text] {
+    width: 100%; font: 1rem "Open Sans", sans-serif; padding: 12px 14px; border-radius: 10px;
+    border: 2px solid var(--borda); background: #fff; color: var(--azul);
   }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--destaque); }
-  textarea { min-height: 150px; resize: vertical; font: 1.25rem "EB Garamond", Georgia, serif; line-height: 1.35; }
-  .linha { display: flex; gap: 10px; } .linha > * { flex: 1; }
-  .contagem { text-align: right; font-size: .8rem; color: var(--texto-suave); margin-top: 4px; }
-  .anexo { display: flex; gap: 10px; flex-wrap: wrap; }
-  .anexo label.botao { margin: 0; font-size: .95rem; padding: .7em 1.1em; background: var(--superficie); color: var(--azul); border: 2px dashed var(--borda); }
-  .anexo label.botao:hover { border-color: var(--laranja); background: var(--superficie); }
+  textarea { min-height: 140px; resize: vertical; font: 1.25rem "EB Garamond", Georgia, serif; line-height: 1.4; }
+  textarea:focus, input:focus { outline: none; border-color: var(--laranja); }
+  .contagem { text-align: right; font-size: .78rem; color: var(--texto-suave); margin-top: 4px; }
+
+  .anexo { display: flex; gap: 10px; }
+  .anexo label { flex: 1; text-align: center; cursor: pointer; font-weight: 700; font-size: .95rem; padding: 16px 8px; min-height: 56px; border-radius: 10px; border: 2px dashed var(--borda); color: var(--azul); }
+  .anexo label:hover { border-color: var(--laranja); }
   .anexo input { display: none; }
-  #previa { margin-top: 12px; position: relative; }
-  #previa img, #previa video { width: 100%; max-height: 320px; object-fit: contain; border-radius: var(--raio); background: #000; }
-  #previa button { position: absolute; top: 8px; right: 8px; padding: .3em .8em; background: rgba(0,0,0,.7); color: #fff; }
-  .consentimento { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: .92rem; margin-top: 22px; }
-  .consentimento input { width: 22px; height: 22px; flex: none; margin-top: 2px; accent-color: var(--destaque); }
-  #enviar { width: 100%; margin-top: 22px; font-size: 1.15rem; }
-  .erro { color: var(--erro); font-weight: 800; margin-top: 12px; min-height: 1.2em; }
-  .progresso { height: 8px; background: var(--azul-claro); border-radius: 99px; overflow: hidden; margin-top: 12px; display: none; }
-  .progresso div { height: 100%; width: 0; background: var(--destaque); transition: width .3s; }
-  .sucesso { text-align: center; padding-top: 12vh; display: none; }
-  .sucesso .folha { font-size: 5rem; animation: cair 1.5s ease-out; display: inline-block; }
-  @keyframes cair { from { transform: translateY(-60px) rotate(-40deg); opacity: 0; } to { transform: none; opacity: 1; } }
-  .sucesso h1 { font-size: 3rem; }
-  .sucesso p { color: var(--texto-suave); font-size: 1.1rem; }
-  .rodape { text-align: center; margin-top: 30px; font-family: "EB Garamond", Georgia, serif; font-size: 1.3rem; color: var(--texto-suave); }
+  .dica { font-size: .8rem; color: var(--texto-suave); margin: 8px 0 0; }
+  #previa { position: relative; margin-top: 10px; }
+  #previa:empty { display: none; }
+  #previa img, #previa video { width: 100%; max-height: 300px; object-fit: contain; border-radius: 10px; background: var(--azul-claro); display: block; }
+  #previa button { position: absolute; top: 8px; right: 8px; padding: .35em .9em; font-size: .85rem; background: rgba(12,41,69,.85); }
+
+  /* escolhas segmentadas */
+  .segmento { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .segmento.quatro { grid-template-columns: repeat(4, 1fr); }
+  .segmento label { cursor: pointer; }
+  .segmento input { position: absolute; opacity: 0; pointer-events: none; }
+  .segmento span { display: block; text-align: center; padding: 12px 6px; min-height: 48px; border-radius: 10px; border: 2px solid var(--borda); font-weight: 700; font-size: .9rem; background: #fff; }
+  .segmento small { display: block; font-weight: 400; font-size: .75rem; color: var(--texto-suave); margin-top: 2px; }
+  .segmento input:checked + span { border-color: var(--azul); background: var(--azul); color: #fff; }
+  .segmento input:checked + span small { color: #C5D3E3; }
+  .segmento input:focus-visible + span { outline: 3px solid var(--laranja); outline-offset: 2px; }
+  @media (max-width: 480px) { .segmento.quatro { grid-template-columns: 1fr 1fr; } }
+  .campo-nome { margin-top: 10px; }
+  .linha-turma { margin-top: 12px; }
+  .linha-turma label { font-size: .85rem; font-weight: 700; display: block; margin-bottom: 6px; }
+
+  /* prévia da folha */
+  .folha-previa { background: #fff; border-radius: var(--raio); border-top: 6px solid var(--laranja); padding: 16px; box-shadow: 0 4px 16px rgba(19,59,100,.1); }
+  .folha-previa .texto { font: 1.2rem/1.4 "EB Garamond", Georgia, serif; white-space: pre-wrap; margin: 0 0 8px; }
+  .folha-previa img, .folha-previa video { width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; background: var(--azul-claro); margin-bottom: 8px; }
+  .folha-previa .autor { font-weight: 700; color: var(--laranja-escuro); font-size: .92rem; }
+
+  .caminho { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .caminho li { display: flex; gap: 10px; align-items: flex-start; font-size: .92rem; line-height: 1.4; }
+  .caminho .n { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: .8rem; background: var(--azul-claro); color: var(--azul); }
+  .caminho li.ok .n { background: var(--laranja); color: #fff; }
+
+  .consentimento { display: flex; gap: 12px; align-items: flex-start; font-size: .95rem; line-height: 1.45; cursor: pointer; padding: 14px; background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); }
+  .consentimento input { width: 24px; height: 24px; flex: none; margin-top: 1px; accent-color: var(--laranja); }
+
+  /* barra de ação fixa embaixo, na zona do polegar */
+  .acoes { display: flex; gap: 10px; margin-top: 18px; }
+  .acoes button, .acoes .botao { min-height: 52px; }
+  .acoes .principal { flex: 1; font-size: 1.08rem; padding: .9em 1em; }
+  section:not(.sucesso) > .acoes {
+    position: sticky; bottom: 0; z-index: 5; margin: 18px -16px 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--fundo) 75%, rgba(244,246,249,0));
+  }
+  @media (min-width: 600px) { section:not(.sucesso) > .acoes { position: static; margin: 18px 0 0; padding: 0; background: none; } }
+  .erro { color: var(--erro); font-weight: 700; margin-top: 12px; line-height: 1.4; }
+  .erro:empty { display: none; }
+  .progresso { height: 6px; background: var(--azul-claro); border-radius: 99px; overflow: hidden; margin-top: 12px; }
+  .progresso div { height: 100%; width: 0; background: var(--laranja); transition: width .3s; }
+
+  .aviso-minhas { background: var(--azul-claro); border-radius: 10px; padding: 10px 14px; font-size: .88rem; margin-bottom: 14px; }
+  .aviso-minhas a { font-weight: 700; }
+
+  .sucesso { text-align: center; padding-top: 6vh; }
+  .sucesso .icone { font-size: 4.2rem; display: inline-block; animation: cair 1.4s ease-out; }
+  @keyframes cair { from { transform: translateY(-50px) rotate(-40deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  .sucesso .caminho { text-align: left; max-width: 380px; margin: 20px auto; }
+  .sucesso .acoes { flex-direction: column; max-width: 380px; margin: 24px auto 0; }
+
+  #voltar { width: 56px; padding: 0; font-size: 1.3rem; flex: none; }
+  html { -webkit-text-size-adjust: 100%; } body { -webkit-tap-highlight-color: transparent; }
+  .rodape { text-align: center; margin-top: 28px; font: 1.1rem "EB Garamond", Georgia, serif; color: var(--texto-suave); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
+<div class="marca"><b>Árvore de Histórias</b><span>Colégio Marista · Pastoral</span></div>
 
-<div class="pagina" id="formulario">
-  <h1>Compartilhe sua história!</h1>
-  <p class="sub">Conte um momento em que você percebeu a ação de <b>Deus</b> na sua vida escolar. Sua história vira uma folha na nossa árvore 🌳</p>
+<main class="pagina">
+  <!-- ============ ETAPA 1: a história ============ -->
+  <section id="etapa1">
+    <div class="etapas" aria-hidden="true"><i class="feita"></i><i></i></div>
+    <p class="rotulo-etapa">Etapa 1 de 2</p>
+    <h1>Compartilhe sua história</h1>
+    <p class="sub">Conte um momento em que você percebeu <b>Deus</b> no dia a dia da escola. <b>Pode ser algo pequeno</b>: um gesto, uma conversa, um abraço.</p>
 
-  <form id="form" novalidate>
-    <label for="mensagem">Sua história</label>
-    <textarea id="mensagem" maxlength="1000" placeholder="Foi quando…"></textarea>
-    <div class="contagem"><span id="cont">0</span>/1000</div>
+    <div id="avisoMinhas" class="aviso-minhas" hidden></div>
 
-    <label>Foto ou vídeo <small>(opcional, até <span id="maxMb"></span> MB)</small></label>
-    <div class="anexo">
-      <label class="botao" for="arqFoto">📷 Foto</label>
-      <input type="file" id="arqFoto" accept="image/*">
-      <label class="botao" for="arqVideo">🎬 Vídeo</label>
-      <input type="file" id="arqVideo" accept="video/*">
+    <div class="bloco">
+      <p class="titulo-bloco">Sua história <small>escreva do seu jeito</small></p>
+      <div class="ideias" id="ideias" aria-label="Ideias para começar"></div>
+      <textarea id="mensagem" maxlength="1000" placeholder="Foi quando…" aria-label="Sua história"></textarea>
+      <div class="contagem"><span id="cont">0</span>/1000</div>
     </div>
-    <div id="previa"></div>
 
-    <label for="nome">Seu nome <small>(opcional — deixe em branco para ficar anônimo)</small></label>
-    <input type="text" id="nome" maxlength="60" autocomplete="given-name">
-
-    <div class="linha">
-      <div>
-        <label for="grupo">Eu sou</label>
-        <select id="grupo">
-          <option>Aluno</option><option>Professor</option><option>Colaborador</option><option>Família</option>
-        </select>
+    <div class="bloco">
+      <p class="titulo-bloco">Foto ou vídeo <small>opcional</small></p>
+      <div class="anexo">
+        <label for="arqFoto">📷 Adicionar foto</label><input type="file" id="arqFoto" accept="image/*">
+        <label for="arqVideo">🎬 Adicionar vídeo</label><input type="file" id="arqVideo" accept="video/*">
       </div>
-      <div>
-        <label for="turma">Turma <small>(opcional)</small></label>
+      <div id="previa"></div>
+      <p class="dica">Vídeo de até <span id="maxMb"></span> MB (cerca de 1 minuto). Aparece alguém? Peça a permissão dessa pessoa antes.</p>
+    </div>
+
+    <div class="erro" id="erro1" role="alert"></div>
+    <div class="acoes"><button class="principal" id="continuar">Continuar</button></div>
+  </section>
+
+  <!-- ============ ETAPA 2: quem assina + revisão ============ -->
+  <section id="etapa2" hidden>
+    <div class="etapas" aria-hidden="true"><i class="feita"></i><i class="feita"></i></div>
+    <p class="rotulo-etapa">Etapa 2 de 2</p>
+    <h1>Quase lá!</h1>
+    <p class="sub">Escolha como sua folha vai aparecer e confira antes de pendurar.</p>
+
+    <div class="bloco">
+      <p class="titulo-bloco">Como você quer aparecer?</p>
+      <div class="segmento">
+        <label><input type="radio" name="identidade" value="anonimo" checked><span>Anônimo<small>ninguém sabe que foi você</small></span></label>
+        <label><input type="radio" name="identidade" value="nome"><span>Com meu nome<small>só o primeiro nome</small></span></label>
+      </div>
+      <div class="campo-nome" id="campoNome" hidden>
+        <input type="text" id="nome" maxlength="30" placeholder="Seu primeiro nome" autocomplete="given-name" aria-label="Seu primeiro nome">
+      </div>
+    </div>
+
+    <div class="bloco">
+      <p class="titulo-bloco">Eu sou</p>
+      <div class="segmento quatro">
+        <label><input type="radio" name="grupo" value="Aluno" checked><span>Aluno</span></label>
+        <label><input type="radio" name="grupo" value="Professor"><span>Professor</span></label>
+        <label><input type="radio" name="grupo" value="Colaborador"><span>Colaborador</span></label>
+        <label><input type="radio" name="grupo" value="Família"><span>Família</span></label>
+      </div>
+      <div class="linha-turma">
+        <label for="turma">Turma <small style="font-weight:400;color:var(--texto-suave)">(opcional)</small></label>
         <input type="text" id="turma" maxlength="30" placeholder="ex.: 8º A">
       </div>
     </div>
 
+    <div class="bloco">
+      <p class="titulo-bloco">Assim vai ficar sua folha</p>
+      <div class="folha-previa" id="folhaPrevia"></div>
+    </div>
+
+    <div class="bloco">
+      <p class="titulo-bloco">O que acontece depois</p>
+      <ol class="caminho">
+        <li><span class="n">1</span><span>Você pendura sua folha. Ela fica <b>privada</b>: ninguém vê ainda.</span></li>
+        <li><span class="n">2</span><span>A equipe da <b>Pastoral</b> lê todas as histórias.</span></li>
+        <li><span class="n">3</span><span>Ela aparece na <b>Árvore de Histórias</b> do colégio.</span></li>
+      </ol>
+    </div>
+
     <label class="consentimento">
       <input type="checkbox" id="aceite">
-      <span>Autorizo que minha história (e a foto/vídeo, se enviar) seja exibida na Árvore de Histórias do Colégio. Sei que ela passa por aprovação antes de aparecer.</span>
+      <span>Autorizo mostrar minha história (e a foto ou o vídeo, se enviei) na Árvore de Histórias do colégio.</span>
     </label>
 
-    <button type="submit" id="enviar">Pendurar minha folha 🍃</button>
-    <div class="progresso" id="progresso"><div></div></div>
-    <div class="erro" id="erro" role="alert"></div>
-  </form>
-  <p class="rodape">“Tornar Jesus Cristo conhecido e amado!” — São Marcelino Champagnat</p>
-</div>
+    <div class="erro" id="erro2" role="alert"></div>
+    <div class="progresso" id="progresso" hidden><div></div></div>
+    <div class="acoes">
+      <button class="secundario" id="voltar" type="button" aria-label="Voltar para a etapa 1">←</button>
+      <button class="principal" id="enviar" type="button">Pendurar minha folha 🍃</button>
+    </div>
+  </section>
 
-<div class="pagina sucesso" id="sucesso">
-  <div class="folha">🍃</div>
-  <h1>Obrigado!</h1>
-  <p>Sua história foi enviada e vai aparecer na árvore assim que for aprovada pela equipe.</p>
-  <p>Ela pode inspirar e fortalecer toda a comunidade Marista! 💙</p>
-  <p style="margin-top:28px"><button class="secundario" onclick="location.reload()">Enviar outra história</button></p>
-</div>
+  <!-- ============ SUCESSO ============ -->
+  <section id="sucesso" class="sucesso" hidden>
+    <div class="icone">🍃</div>
+    <h1>Sua folha foi pendurada!</h1>
+    <p class="sub">Obrigado por compartilhar. Sua história pode inspirar e fortalecer toda a comunidade Marista.</p>
+    <ol class="caminho">
+      <li class="ok"><span class="n">✓</span><span>Você pendurou sua folha.</span></li>
+      <li><span class="n">2</span><span>A Pastoral vai ler a sua história.</span></li>
+      <li><span class="n">3</span><span>Depois ela aparece na árvore. Volte aqui pelo mesmo celular para ver como ela está.</span></li>
+    </ol>
+    <div class="acoes">
+      <a class="botao" href="index.html">Ver a Árvore de Histórias</a>
+      <button class="secundario" id="outra">Contar outra história</button>
+    </div>
+  </section>
+
+  <p class="rodape">“Tornar Jesus Cristo conhecido e amado!”<br>São Marcelino Champagnat</p>
+</main>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="comum.js"></script>
 <script>
-const { sb, cfg } = Arvore;
-document.getElementById("maxMb").textContent = cfg.TAMANHO_MAX_MB;
-
+const { sb, cfg, esc, assinatura } = Arvore;
 const $ = id => document.getElementById(id);
-const msg = $("mensagem");
-msg.addEventListener("input", () => $("cont").textContent = msg.value.length);
+$("maxMb").textContent = cfg.TAMANHO_MAX_MB;
 
-let arquivo = null, tipo = null;
+/* ---------- Ideias para começar (combate a página em branco) ---------- */
+const IDEIAS = [
+  ["🤝 Um gesto de um colega", "Quando um colega "],
+  ["🍎 Um professor que me marcou", "Teve um dia em que um professor "],
+  ["🙏 Um momento de oração", "Num momento de oração na escola, "],
+  ["💪 Algo que eu superei", "Eu estava passando por uma fase difícil e "],
+  ["💛 Uma ajuda que recebi", "Eu precisei de ajuda e "],
+  ["✨ Um detalhe do dia a dia", "Todo dia, um pequeno detalhe "],
+];
+const msg = $("mensagem");
+IDEIAS.forEach(([rotulo, inicio]) => {
+  const b = document.createElement("button"); b.type = "button"; b.textContent = rotulo;
+  b.onclick = () => {
+    if (msg.value.trim() && !confirm("Trocar o que você já escreveu por esta ideia?")) return;
+    msg.value = inicio; msg.focus(); msg.setSelectionRange(inicio.length, inicio.length); atualizar(); salvarRascunho();
+  };
+  $("ideias").appendChild(b);
+});
+
+/* ---------- Rascunho salvo no aparelho (não perde o texto) ---------- */
+const CHAVE_RASCUNHO = "arvore-rascunho", CHAVE_MINHAS = "arvore-minhas";
+const ler = (k, padrao) => { try { return JSON.parse(localStorage.getItem(k)) ?? padrao; } catch { return padrao; } };
+const gravar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+function salvarRascunho() {
+  gravar(CHAVE_RASCUNHO, { mensagem: msg.value, nome: $("nome").value, turma: $("turma").value,
+    identidade: valor("identidade"), grupo: valor("grupo") });
+}
+function valor(nome) { return document.querySelector(`input[name=${nome}]:checked`).value; }
+(function restaurar() {
+  const r = ler(CHAVE_RASCUNHO, null); if (!r) return;
+  msg.value = r.mensagem || ""; $("nome").value = r.nome || ""; $("turma").value = r.turma || "";
+  document.querySelector(`input[name=identidade][value="${r.identidade}"]`)?.click();
+  document.querySelector(`input[name=grupo][value="${r.grupo}"]`)?.click();
+})();
+["input", "change"].forEach(ev => document.addEventListener(ev, e => { if (e.target.matches("textarea, input:not([type=file])")) salvarRascunho(); }));
+
+function atualizar() { $("cont").textContent = msg.value.length; }
+msg.addEventListener("input", atualizar); atualizar();
+
+document.querySelectorAll("input[name=identidade]").forEach(r => r.addEventListener("change", () => {
+  $("campoNome").hidden = valor("identidade") !== "nome";
+  if (!$("campoNome").hidden) $("nome").focus();
+  desenharPrevia();
+}));
+$("campoNome").hidden = valor("identidade") !== "nome";
+["nome", "turma"].forEach(id => $(id).addEventListener("input", desenharPrevia));
+document.querySelectorAll("input[name=grupo]").forEach(r => r.addEventListener("change", desenharPrevia));
+
+/* ---------- Foto / vídeo ---------- */
+let arquivo = null, tipo = null, urlLocal = null;
 function escolher(input, t) {
   const f = input.files[0]; input.value = "";
   if (!f) return;
-  if (f.size > cfg.TAMANHO_MAX_MB * 1024 * 1024 && t === "video") {
-    $("erro").textContent = `Esse vídeo tem ${(f.size / 1048576).toFixed(0)} MB. O limite é ${cfg.TAMANHO_MAX_MB} MB — grave um vídeo mais curto.`;
+  $("erro1").textContent = "";
+  if (t === "video" && f.size > cfg.TAMANHO_MAX_MB * 1048576) {
+    $("erro1").textContent = `Esse vídeo tem ${(f.size / 1048576).toFixed(0)} MB e o limite é ${cfg.TAMANHO_MAX_MB} MB. Grave um trecho mais curto (até 1 minuto) e tente de novo.`;
     return;
   }
-  $("erro").textContent = "";
   arquivo = f; tipo = t;
-  const url = URL.createObjectURL(f);
-  $("previa").innerHTML = (t === "imagem" ? `<img src="${url}" alt="">` : `<video src="${url}" controls playsinline></video>`)
+  if (urlLocal) URL.revokeObjectURL(urlLocal);
+  urlLocal = URL.createObjectURL(f);
+  $("previa").innerHTML = (t === "imagem" ? `<img src="${urlLocal}" alt="Prévia da foto">` : `<video src="${urlLocal}" controls playsinline></video>`)
     + `<button type="button" id="remover">Remover</button>`;
   $("remover").onclick = () => { arquivo = tipo = null; $("previa").innerHTML = ""; };
 }
 $("arqFoto").addEventListener("change", e => escolher(e.target, "imagem"));
 $("arqVideo").addEventListener("change", e => escolher(e.target, "video"));
 
-// Reduz fotos grandes de celular (economiza espaço e carrega rápido na TV)
+/* ---------- Navegação entre etapas ---------- */
+function mostrar(id) {
+  ["etapa1", "etapa2", "sucesso"].forEach(s => $(s).hidden = s !== id);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+$("continuar").onclick = () => {
+  if (!msg.value.trim() && !arquivo) {
+    $("erro1").textContent = "Escreva algumas palavras ou adicione uma foto/vídeo para continuar. Sem ideia? Toque numa das sugestões acima.";
+    msg.focus(); return;
+  }
+  $("erro1").textContent = "";
+  desenharPrevia(); mostrar("etapa2");
+};
+$("voltar").onclick = () => mostrar("etapa1");
+
+function dadosAssinatura() {
+  return { nome: valor("identidade") === "nome" ? $("nome").value.trim() : "", grupo: valor("grupo"), turma: $("turma").value.trim() };
+}
+function desenharPrevia() {
+  let midia = "";
+  if (arquivo && tipo === "imagem") midia = `<img src="${urlLocal}" alt="">`;
+  if (arquivo && tipo === "video") midia = `<video src="${urlLocal}" muted playsinline></video>`;
+  const texto = msg.value.trim() ? `<p class="texto">${esc(msg.value.trim())}</p>` : "";
+  $("folhaPrevia").innerHTML = midia + texto + `<div class="autor">${esc(assinatura(dadosAssinatura()))}</div>`;
+}
+
+/* ---------- Envio ---------- */
 async function comprimirImagem(f) {
   try {
     const bmp = await createImageBitmap(f, { imageOrientation: "from-image" });
@@ -138,49 +333,78 @@ async function comprimirImagem(f) {
     return blob && blob.size < f.size ? blob : f;
   } catch { return f; }
 }
+function progresso(p) { $("progresso").hidden = false; $("progresso").firstElementChild.style.width = p + "%"; }
 
-function progresso(p) { $("progresso").style.display = "block"; $("progresso").firstElementChild.style.width = p + "%"; }
+function mensagemDeErro(err) {
+  const t = String(err?.message || err || "").toLowerCase();
+  if (!navigator.onLine || t.includes("failed to fetch") || t.includes("network"))
+    return "Parece que a internet caiu. Sua história continua salva aqui; quando a conexão voltar, toque em “Pendurar minha folha” de novo.";
+  if (t.includes("maior que") || t.includes("too large") || t.includes("exceeded") || t.includes("size"))
+    return `O arquivo passou de ${cfg.TAMANHO_MAX_MB} MB. Volte e escolha um vídeo mais curto ou uma foto.`;
+  if (t.includes("mime") || t.includes("type"))
+    return "Esse tipo de arquivo não é aceito. Use uma foto (JPG, PNG, HEIC) ou um vídeo do celular (MP4, MOV).";
+  return "Algo deu errado do nosso lado. Sua história continua salva aqui; tente de novo em alguns instantes.";
+}
 
-$("form").addEventListener("submit", async e => {
-  e.preventDefault();
-  const erro = $("erro"); erro.textContent = "";
-  const texto = msg.value.trim();
-  if (!texto && !arquivo) { erro.textContent = "Escreva sua história ou envie uma foto/vídeo."; return; }
-  if (!$("aceite").checked) { erro.textContent = "Marque a autorização para continuar."; return; }
+$("enviar").onclick = async () => {
+  const erro = $("erro2"); erro.textContent = "";
+  const a = dadosAssinatura();
+  if (valor("identidade") === "nome" && !a.nome) { erro.textContent = "Escreva seu primeiro nome ou escolha “Anônimo”."; $("nome").focus(); return; }
+  if (!$("aceite").checked) { erro.textContent = "Para pendurar a folha, marque a autorização logo acima."; return; }
 
-  const botao = $("enviar"); botao.disabled = true; botao.textContent = "Enviando…";
+  const botao = $("enviar"); botao.disabled = true; botao.textContent = "Pendurando…";
   try {
+    const id = crypto.randomUUID();
     let caminho = null;
     if (arquivo) {
       progresso(15);
       let corpo = arquivo, ext = (arquivo.name.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "");
       if (tipo === "imagem") { corpo = await comprimirImagem(arquivo); if (corpo !== arquivo) ext = "jpg"; }
-      if (corpo.size > cfg.TAMANHO_MAX_MB * 1048576) throw new Error(`Arquivo maior que ${cfg.TAMANHO_MAX_MB} MB.`);
-      caminho = `envios/${crypto.randomUUID()}.${ext || (tipo === "imagem" ? "jpg" : "mp4")}`;
+      if (corpo.size > cfg.TAMANHO_MAX_MB * 1048576) throw new Error("maior que o limite");
+      caminho = `envios/${id}.${ext || (tipo === "imagem" ? "jpg" : "mp4")}`;
       progresso(35);
       const up = await sb.storage.from(cfg.BUCKET).upload(caminho, corpo, { contentType: corpo.type || arquivo.type, upsert: false });
       if (up.error) throw up.error;
       progresso(85);
     }
     const { error } = await sb.from("historias").insert({
-      mensagem: texto || null,
-      nome: $("nome").value.trim() || null,
-      grupo: $("grupo").value,
-      turma: $("turma").value.trim() || null,
+      id,
+      mensagem: msg.value.trim() || null,
+      nome: a.nome || null,
+      grupo: a.grupo,
+      turma: a.turma || null,
       midia_caminho: caminho,
       midia_tipo: caminho ? tipo : null,
     });
     if (error) throw error;
     progresso(100);
-    $("formulario").style.display = "none";
-    $("sucesso").style.display = "block";
+    gravar(CHAVE_MINHAS, [id, ...ler(CHAVE_MINHAS, [])].slice(0, 20));
+    try { localStorage.removeItem(CHAVE_RASCUNHO); } catch {}
+    mostrar("sucesso");
   } catch (err) {
     console.error(err);
-    erro.textContent = "Não foi possível enviar: " + (err.message || "tente de novo.");
+    erro.textContent = mensagemDeErro(err);
+    $("progresso").hidden = true;
+  } finally {
     botao.disabled = false; botao.textContent = "Pendurar minha folha 🍃";
-    $("progresso").style.display = "none";
   }
-});
+};
+$("outra").onclick = () => location.reload();
+
+/* ---------- Acompanhar minhas folhas ---------- */
+(async function minhas() {
+  const ids = ler(CHAVE_MINHAS, []);
+  if (!ids.length) return;
+  const { data, error } = await sb.rpc("status_das_minhas_historias", { ids });
+  if (error || !data?.length) return;
+  const n = s => data.filter(d => d.status === s).length;
+  const partes = [];
+  if (n("aprovado")) partes.push(`<b>${n("aprovado")}</b> já ${n("aprovado") > 1 ? "estão" : "está"} na árvore 🌳 <a href="index.html">ver</a>`);
+  if (n("pendente")) partes.push(`<b>${n("pendente")}</b> ${n("pendente") > 1 ? "estão" : "está"} com a Pastoral para leitura`);
+  if (!partes.length) return;
+  $("avisoMinhas").innerHTML = "Suas folhas: " + partes.join(" · ");
+  $("avisoMinhas").hidden = false;
+})();
 </script>
 </body>
 </html>

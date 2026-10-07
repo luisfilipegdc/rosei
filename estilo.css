@@ -41,7 +41,7 @@ body {
 }
 h1, h2, .titulo { font-family: "EB Garamond", Garamond, Georgia, serif; font-weight: 700; letter-spacing: .2px; }
 a { color: var(--laranja); }
-body:not(.escuro) a { color: var(--azul); }
+body:not(.escuro) a:not(.botao) { color: var(--azul); }
 button, .botao {
   font: 700 1rem "Open Sans", sans-serif;
   border: 0; border-radius: 999px; padding: .85em 1.5em; cursor: pointer;

@@ -76,3 +76,12 @@ create policy "ver mídia aprovada ou moderador" on storage.objects
                  where h.midia_caminho = storage.objects.name and h.status = 'aprovado')
     )
   );
+
+-- 4) O aluno acompanha as próprias folhas (só o status, pelo id aleatório guardado no celular)
+create or replace function public.status_das_minhas_historias(ids uuid[])
+returns table(id uuid, status text)
+language sql stable security definer set search_path = public as $$
+  select h.id, h.status from public.historias h where h.id = any(ids[1:20]);
+$$;
+revoke all on function public.status_das_minhas_historias(uuid[]) from public;
+grant execute on function public.status_das_minhas_historias(uuid[]) to anon, authenticated;

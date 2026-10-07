@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Árvore de Histórias</title>
 <link rel="stylesheet" href="estilo.css">
 <style>
@@ -31,13 +31,49 @@
   .controles button { padding: .5em 1em; font-size: .85rem; }
   .vazio { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; pointer-events: none; }
   .vazio p { font: 700 2rem "EB Garamond", Georgia, serif; color: var(--texto-suave); text-align: center; margin-top: -20vh; }
-  @media (max-width: 640px) {
-    .qr { width: 104px; right: 10px; bottom: 10px; padding: 6px 6px 4px; }
-    .qr #qrcode img, .qr #qrcode canvas { width: 90px !important; height: 90px !important; }
-    .qr span { font-size: .95rem; }
-    .contador { font-size: 1.1rem; left: 10px; bottom: 10px; }
-    .controles { left: 10px; }
+  .folha.minha use { stroke: #fff; stroke-width: 4; }
+  .folha.minha { animation: pulsar 2.4s ease-in-out infinite; }
+  @keyframes pulsar { 50% { transform: scale(1.25); } }
+  @media (min-width: 1100px) {
+    .qr { width: 210px; padding: 14px 14px 10px; }
+    .qr #qrcode img, .qr #qrcode canvas { width: 182px !important; height: 182px !important; }
+    .qr span { font-size: 1.35rem; }
   }
+  .so-celular { display: none; }
+
+  /* ---------- CELULAR: rolagem, lista de histórias e botão fixo ---------- */
+  @media (max-width: 760px) {
+    body { height: auto; min-height: 100vh; overflow: auto; padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+    header { padding: 18px 16px 0; }
+    header h1 { font-size: 2.1rem; line-height: 1.05; }
+    header p { font-size: .95rem; margin-top: 6px; line-height: 1.45; }
+    main { flex: none; height: 56vh; min-height: 320px; }
+    .qr, .controles { display: none; }
+    .contador { display: none; }
+    .so-celular { display: block; }
+    .folha:hover { transform: none; }
+    .modal-fundo { align-items: flex-end; padding: 0; }
+    .modal-fundo .cartao { border-radius: 18px 18px 0 0; max-height: 85vh; padding-bottom: calc(22px + env(safe-area-inset-bottom)); animation: subir .25s ease-out; }
+    @keyframes subir { from { transform: translateY(40%); } }
+  }
+  .lista-historias { padding: 4px 16px 8px; max-width: 640px; margin: 0 auto; }
+  .lista-historias .resumo { display: flex; justify-content: space-between; align-items: baseline; margin: 6px 0 12px; }
+  .lista-historias h2 { margin: 0; font-size: 1.6rem; }
+  .lista-historias .resumo span { color: var(--texto-suave); font-size: .9rem; }
+  .lista-historias .resumo b { color: var(--laranja); }
+  .card-historia { background: #fff; color: var(--azul); border-radius: var(--raio); padding: 14px 16px; margin-bottom: 12px; border-left: 6px solid var(--laranja); cursor: pointer; }
+  .card-historia .texto { font: 1.15rem/1.4 "EB Garamond", Georgia, serif; margin: 0 0 8px; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-historia .autor { font-weight: 700; color: var(--laranja-escuro); font-size: .88rem; }
+  .card-historia .selo-midia { font-size: .8rem; color: var(--texto-suave); margin-left: 6px; font-weight: 400; }
+  .card-historia.minha { border-left-color: var(--azul); box-shadow: 0 0 0 3px var(--laranja); }
+  .selo-minha { display: inline-block; background: var(--laranja); color: #fff; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; padding: 3px 8px; border-radius: 99px; margin-bottom: 8px; }
+  .cta-fixo {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--azul) 70%, rgba(19,59,100,0));
+  }
+  .cta-fixo .botao { display: block; text-align: center; font-size: 1.08rem; padding: 1em; min-height: 54px; }
+  .modal-fundo .cartao .selo-minha { margin-bottom: 12px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body class="escuro">
@@ -67,6 +103,13 @@
     <span>Aponte a câmera e deixe a sua!</span>
   </a>
 </main>
+
+<section class="lista-historias so-celular" aria-label="Histórias">
+  <div class="resumo"><h2>Histórias</h2><span><b id="totalCel">0</b> folhas penduradas</span></div>
+  <div id="minhasAviso"></div>
+  <div id="listaCel"></div>
+</section>
+<div class="cta-fixo so-celular"><a class="botao" href="enviar.html">🍃 Contar minha história</a></div>
 
 <div class="modal-fundo" id="modal">
   <div class="cartao" role="dialog" aria-modal="true">
@@ -139,6 +182,8 @@ const CORES = ["#F39200", "#FFB547", "#FFFFFF", "#7FB2E5", "#FFD08A", "#A9C8E8"]
 /* ---------------- Dados ---------------- */
 let historias = [];
 const jaVistas = new Set();
+// folhas enviadas por este celular (gravadas no envio)
+const minhas = new Set((() => { try { return JSON.parse(localStorage.getItem("arvore-minhas")) || []; } catch { return []; } })());
 
 async function carregar() {
   const { data: lista, error } = await sb.from("historias").select("*").eq("status", "aprovado").order("criado_em", { ascending: true });
@@ -157,7 +202,7 @@ function desenharFolhas(primeira) {
   historias.forEach((h, i) => {
     const p = pts[i], rnd = aleatorio(i + 7);
     const ang = Math.round(rnd() * 120 - 60);
-    const grupo = el("g", { class: "folha", tabindex: 0, role: "button", "aria-label": "Abrir história", "data-i": i }, g);
+    const grupo = el("g", { class: "folha" + (minhas.has(h.id) ? " minha" : ""), tabindex: 0, role: "button", "aria-label": "Abrir história", "data-i": i }, g);
     if (!primeira && !jaVistas.has(h.id)) grupo.classList.add("nova");
     jaVistas.add(h.id);
     const t = el("g", { transform: `translate(${p.x.toFixed(1)},${p.y.toFixed(1)}) rotate(${ang}) scale(${escala})` }, grupo);
@@ -168,7 +213,28 @@ function desenharFolhas(primeira) {
     grupo.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(i); } });
   });
   document.getElementById("total").textContent = historias.length;
+  document.getElementById("totalCel").textContent = historias.length;
+  desenharLista();
   document.getElementById("vazio").style.display = historias.length ? "none" : "flex";
+}
+
+/* ---------------- Lista (celular) ---------------- */
+function desenharLista() {
+  const lista = document.getElementById("listaCel");
+  lista.innerHTML = "";
+  const ordem = historias.map((h, i) => i).reverse(); // mais recentes primeiro
+  ordem.sort((a, b) => minhas.has(historias[b].id) - minhas.has(historias[a].id)); // as minhas no topo
+  ordem.forEach(i => {
+    const h = historias[i], card = document.createElement("article");
+    card.className = "card-historia" + (minhas.has(h.id) ? " minha" : "");
+    const midia = h.midia_tipo === "imagem" ? "📷 foto" : h.midia_tipo === "video" ? "🎬 vídeo" : "";
+    card.innerHTML = (minhas.has(h.id) ? '<span class="selo-minha">Sua folha</span>' : "")
+      + (h.mensagem ? `<p class="texto">${Arvore.esc(h.mensagem)}</p>` : "")
+      + `<div class="autor">${Arvore.esc(Arvore.assinatura(h))}${midia ? `<span class="selo-midia">· ${midia}</span>` : ""}</div>`;
+    card.onclick = () => abrir(i);
+    lista.appendChild(card);
+  });
+  if (!historias.length) lista.innerHTML = '<p style="color:var(--texto-suave)">Ainda não há folhas. Que tal pendurar a primeira?</p>';
 }
 
 /* ---------------- Modal ---------------- */
@@ -176,7 +242,7 @@ const modal = document.getElementById("modal");
 function abrir(i) {
   document.querySelectorAll(".folha.destaque").forEach(f => f.classList.remove("destaque"));
   document.querySelector(`.folha[data-i="${i}"]`)?.classList.add("destaque");
-  document.getElementById("conteudo").innerHTML = htmlHistoria(historias[i]);
+  document.getElementById("conteudo").innerHTML = (minhas.has(historias[i].id) ? '<span class="selo-minha">Sua folha 🍃</span>' : "") + htmlHistoria(historias[i]);
   modal.classList.add("aberto");
 }
 function fechar() {
@@ -209,7 +275,7 @@ const urlEnviar = new URL("enviar.html", location.href).href;
 document.getElementById("linkEnviar").href = urlEnviar;
 new QRCode(document.getElementById("qrcode"), { text: urlEnviar, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M });
 
-carregar();
+carregar().then(() => { if (new URLSearchParams(location.search).has("tv")) btn.click(); });
 setInterval(carregar, cfg.ATUALIZAR_A_CADA_SEG * 1000);
 </script>
 </body>
